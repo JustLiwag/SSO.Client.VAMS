@@ -34,6 +34,8 @@ namespace SSO.Client.VAMS.Controllers
             // Store token and user info in session
             HttpContext.Session.SetString("access_token", loginResponse.Token);
             HttpContext.Session.SetString("user_info", JsonSerializer.Serialize(loginResponse));
+            HttpContext.Session.SetString("EmployeeId", loginResponse.EmployeeNo);
+
 
             return RedirectToAction("Index", "Dashboard");
         }
