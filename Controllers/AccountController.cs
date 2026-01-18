@@ -23,12 +23,22 @@ namespace SSO.Client.VAMS.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var loginResponse = await _sso.LoginAsync(model.Username, model.Password);
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // LoginAsync now returns a tuple with the response DTO and an error message (if any)
+            var (loginResponse, errorMessage) = await _sso.LoginAsync(model.Username, model.Password);
 
             if (loginResponse == null)
             {
-                ViewBag.Error = "Invalid credentials or inactive employee";
-                return View();
+                // Prefer the API-provided error message when available; fall back to a generic message
+                ViewBag.Error = string.IsNullOrWhiteSpace(errorMessage)
+                    ? "Invalid credentials or inactive employee"
+                    : errorMessage;
+
+                return View(model);
             }
 
             // Store token and user info in session

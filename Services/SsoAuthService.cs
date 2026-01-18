@@ -18,9 +18,10 @@ namespace SSO.Client.VAMS.Services
         }
 
         /// <summary>
-        /// Logs in using SSO API and returns the login response DTO
+        /// Logs in using SSO API and returns the login response DTO plus any error message returned by the API.
+        /// Returns (responseDto, null) on success or (null, errorMessage) on failure.
         /// </summary>
-        public async Task<LoginResponseDto?> LoginAsync(string username, string password)
+        public async Task<(LoginResponseDto? Response, string? ErrorMessage)> LoginAsync(string username, string password)
         {
             var client = _httpClientFactory.CreateClient();
 
@@ -38,18 +39,26 @@ namespace SSO.Client.VAMS.Services
 
             var response = await client.SendAsync(request);
 
-            if (!response.IsSuccessStatusCode)
-                return null;
+            var content = await response.Content.ReadAsStringAsync();
 
-            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                // Prefer the body returned by the API as the error message (plain text or JSON string)
+                // If the body is empty, use the status code reason.
+                var errorMessage = !string.IsNullOrWhiteSpace(content)
+                    ? content.Trim('"') // trim quotes if API returned a JSON string
+                    : response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}";
+
+                return (null, errorMessage);
+            }
 
             // Deserialize case-insensitively
             var loginResponse = JsonSerializer.Deserialize<LoginResponseDto>(
-                json,
+                content,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
 
-            return loginResponse;
+            return (loginResponse, null);
         }
 
         /// <summary>
