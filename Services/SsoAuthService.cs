@@ -5,9 +5,8 @@ using SSO.Client.VAMS.Models;
 
 namespace SSO.Client.VAMS.Services
 {
-    /// <summary>
+    
     /// Handles SSO API calls
-    /// </summary>
     public class SsoAuthService
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -17,10 +16,8 @@ namespace SSO.Client.VAMS.Services
             _httpClientFactory = httpClientFactory;
         }
 
-        /// <summary>
         /// Logs in using SSO API and returns the login response DTO plus any error message returned by the API.
         /// Returns (responseDto, null) on success or (null, errorMessage) on failure.
-        /// </summary>
         public async Task<(LoginResponseDto? Response, string? ErrorMessage)> LoginAsync(string username, string password)
         {
             var client = _httpClientFactory.CreateClient();
@@ -61,9 +58,7 @@ namespace SSO.Client.VAMS.Services
             return (loginResponse, null);
         }
 
-        /// <summary>
         /// Gets user claims from /api/auth/me
-        /// </summary>
         public async Task<List<UserClaimsDto>?> GetUserClaimsAsync(string token)
         {
             var client = _httpClientFactory.CreateClient();
