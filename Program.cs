@@ -1,7 +1,29 @@
 using Microsoft.EntityFrameworkCore;
 using SSO.Client.VAMS.Data;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "Cookies";
+    options.DefaultChallengeScheme = "oidc";
+})
+.AddCookie("Cookies")
+.AddOpenIdConnect("oidc", options =>
+{
+    options.Authority = "https://localhost:5001";
+    options.ClientId = "vams_client";
+    options.ResponseType = "code";
+    options.UsePkce = true;
+
+    options.Scope.Add("openid");
+    options.Scope.Add("profile");
+    options.Scope.Add("sso_api");
+
+    options.SaveTokens = true;
+});
 
 // Add services to the container.
 // MVC with controllers and views (Razor Pages projects may use AddRazorPages instead).
@@ -32,7 +54,9 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",

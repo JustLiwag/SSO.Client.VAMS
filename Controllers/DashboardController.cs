@@ -54,13 +54,12 @@ namespace SSO.Client.VAMS.Controllers
             PersonnelDivisionDetail? localUser = null;
             if (!string.IsNullOrWhiteSpace(employeeId))
             {
-                // Use AsNoTracking for read-only queries to improve performance.
+                // The view is mapped as vw_PersonnelDivisionDetails in ApplicationDbContext
                 localUser = await _db.PersonnelDivisionDetails
                     .AsNoTracking()
                     .FirstOrDefaultAsync(p => p.EmployeeId == employeeId);
             }
 
-            // Pass gathered information to the view using ViewBag to keep the view simple.
             ViewBag.UserInfo = userInfo;
             ViewBag.Claims = claims;
             ViewBag.LocalUser = localUser;
