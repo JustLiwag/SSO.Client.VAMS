@@ -1,70 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SSO.Client.VAMS.Models;
-using SSO.Client.VAMS.Services;
-using SSO.Client.VAMS.Data;
-using System.Text.Json;
-using SSO.Client.VAMS.Filters;
+using System.Linq;
 
 namespace SSO.Client.VAMS.Controllers
 {
-    /// <summary>
-    /// Dashboard controller that shows authenticated user's information.
-    /// Requires an SSO login via the <see cref="RequireSsoLogin"/> filter.
-    /// </summary>
-    [RequireSsoLogin]
+    [Authorize] // Only authenticated users can access
     public class DashboardController : Controller
     {
-        private readonly SsoAuthService _sso;
-        private readonly ApplicationDbContext _db;
-
-        /// <summary>
-        /// Creates a new <see cref="DashboardController"/>.
-        /// </summary>
-        /// <param name="sso">SSO service used to fetch claims.</param>
-        /// <param name="db">EF Core database context used to query local user details view.</param>
-        public DashboardController(SsoAuthService sso, ApplicationDbContext db)
+        public IActionResult Index()
         {
-            _sso = sso;
-            _db = db;
-        }
+            // Convert all claims to a strongly typed list
+            var claims = User.Claims
+                .Select(c => new ClaimViewModel
+                {
+                    Type = c.Type,
+                    Value = c.Value
+                })
+                .ToList();
 
-        /// <summary>
-        /// GET: /Dashboard/Index
-        /// Loads user info from session, optionally refreshes claims from SSO API,
-        /// and looks up local personnel details from the mapped view <c>vw_PersonnelDivisionDetails</c>.
-        /// </summary>
-        /// <returns>Dashboard view populated with SSO and local user data.</returns>
-        public async Task<IActionResult> Index()
-        {
-            // Retrieve bearer token stored in session during login. If missing, redirect to login.
-            var token = HttpContext.Session.GetString("access_token");
-            if (token == null)
-                return RedirectToAction("Login", "Account");
-
-            // Retrieve and deserialize SSO-provided user info saved in session.
-            var userJson = HttpContext.Session.GetString("user_info");
-            var userInfo = JsonSerializer.Deserialize<LoginResponseDto>(userJson ?? "{}");
-
-            // Optionally fetch claims from SSO API for more detailed authorization data.
-            var claims = await _sso.GetUserClaimsAsync(token);
-
-            // Query the local database view for personnel details using the EmployeeId stored in session.
-            var employeeId = HttpContext.Session.GetString("EmployeeId");
-            PersonnelDivisionDetail? localUser = null;
-            if (!string.IsNullOrWhiteSpace(employeeId))
+            // Map essential claims to view model
+            var model = new DashboardViewModel
             {
-                // The view is mapped as vw_PersonnelDivisionDetails in ApplicationDbContext
-                localUser = await _db.PersonnelDivisionDetails
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.EmployeeId == employeeId);
-            }
+                EmployeeId = User.FindFirst("employee_id")?.Value,
+                FullName = User.FindFirst("full_name")?.Value,
+                Division = User.FindFirst("division")?.Value,
+                Claims = claims
+            };
 
-            ViewBag.UserInfo = userInfo;
-            ViewBag.Claims = claims;
-            ViewBag.LocalUser = localUser;
-
-            return View();
+            return View(model);
         }
     }
 }

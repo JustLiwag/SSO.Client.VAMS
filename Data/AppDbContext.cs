@@ -7,16 +7,13 @@ namespace SSO.Client.VAMS.Data
     /// Entity Framework Core database context for local application data.
     /// Maps the read-only view <c>vw_PersonnelDivisionDetails</c> to <see cref="PersonnelDivisionDetail"/>.
     /// </summary>
-    public class ApplicationDbContext : DbContext
+    public class AppDbContext : DbContext
     {
         /// <summary>
-        /// Constructs a new <see cref="ApplicationDbContext"/>.
+        /// Constructs a new <see cref="AppDbContext"/>.
         /// </summary>
         /// <param name="options">Options provided by DI (e.g., connection string, provider).</param>
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         /// <summary>
         /// Represents the view <c>vw_PersonnelDivisionDetails</c> mapped to the <see cref="PersonnelDivisionDetail"/> entity.
@@ -34,12 +31,12 @@ namespace SSO.Client.VAMS.Data
             modelBuilder.Entity<PersonnelDivisionDetail>(entity =>
             {
                 // Configure a key for EF even though the view is read-only. This helps EF track instances.
-                entity.HasKey(e => e.EmployeeId);
+                entity.HasKey(e => e.employee_id);
                 entity.ToView("vw_PersonnelDivisionDetails");
-                entity.Property(e => e.EmployeeId).HasColumnName("employee_id");
-                entity.Property(e => e.Surname).HasColumnName("surname");
-                entity.Property(e => e.GivenName).HasColumnName("given_name");
-                entity.Property(e => e.DivisionName).HasColumnName("division_name");
+                entity.Property(e => e.employee_id).HasColumnName("employee_id");
+                entity.Property(e => e.surname).HasColumnName("surname");
+                entity.Property(e => e.given_name).HasColumnName("given_name");
+                entity.Property(e => e.division_name).HasColumnName("division_name");
             });
 
             base.OnModelCreating(modelBuilder);

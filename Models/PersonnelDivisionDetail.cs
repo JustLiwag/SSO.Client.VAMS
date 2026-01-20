@@ -6,25 +6,11 @@ namespace SSO.Client.VAMS.Models
     /// </summary>
     public class PersonnelDivisionDetail
     {
-        /// <summary>
-        /// Employee identifier. The type is string here because many HR systems use alphanumeric employee IDs.
-        /// Change to int if your database uses numeric IDs.
-        /// </summary>
-        public string EmployeeId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Surname / family name.
-        /// </summary>
-        public string Surname { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Given / first name.
-        /// </summary>
-        public string GivenName { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Name of the division the employee belongs to.
-        /// </summary>
-        public string DivisionName { get; set; } = string.Empty;
+        public int hris_id { get; set; }
+        public string employee_id { get; set; } = null!;
+        public string surname { get; set; } = string.Empty;
+        public string given_name { get; set; } = string.Empty;
+        public DateTime? separation_date { get; set; }
+        public string division_name { get; set; } = string.Empty;
     }
 }
