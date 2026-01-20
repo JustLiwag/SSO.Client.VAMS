@@ -5,19 +5,31 @@ using SSO.Client.VAMS.Models;
 
 namespace SSO.Client.VAMS.Services
 {
-    
-    /// Handles SSO API calls
+    /// <summary>
+    /// Handles communication with the external SSO API.
+    /// This service encapsulates HTTP calls required to authenticate users and fetch their claims.
+    /// </summary>
     public class SsoAuthService
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
+        /// <summary>
+        /// Creates a new <see cref="SsoAuthService"/>.
+        /// </summary>
+        /// <param name="httpClientFactory">Factory to create <see cref="HttpClient"/> instances.</param>
         public SsoAuthService(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
-        /// Logs in using SSO API and returns the login response DTO plus any error message returned by the API.
-        /// Returns (responseDto, null) on success or (null, errorMessage) on failure.
+        /// <summary>
+        /// Attempts to log the user in using the SSO API.
+        /// Returns a tuple: (LoginResponseDto? response, string? errorMessage).
+        /// If authentication fails the response is null and errorMessage contains API details when available.
+        /// </summary>
+        /// <param name="username">Username credential.</param>
+        /// <param name="password">Password credential.</param>
+        /// <returns>A tuple with the deserialized response DTO on success, or null plus an error message on failure.</returns>
         public async Task<(LoginResponseDto? Response, string? ErrorMessage)> LoginAsync(string username, string password)
         {
             var client = _httpClientFactory.CreateClient();
@@ -28,6 +40,7 @@ namespace SSO.Client.VAMS.Services
                 Password = password
             };
 
+            // Build the request to the SSO API login endpoint.
             var request = new HttpRequestMessage(HttpMethod.Post,
                 "https://localhost:5001/api/auth/login")
             {
@@ -40,16 +53,15 @@ namespace SSO.Client.VAMS.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                // Prefer the body returned by the API as the error message (plain text or JSON string)
-                // If the body is empty, use the status code reason.
+                // Favor the API response body as an error message when present.
                 var errorMessage = !string.IsNullOrWhiteSpace(content)
-                    ? content.Trim('"') // trim quotes if API returned a JSON string
+                    ? content.Trim('"') // trim surrounding quotes if API returned a JSON string
                     : response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}";
 
                 return (null, errorMessage);
             }
 
-            // Deserialize case-insensitively
+            // Deserialize response case-insensitively to map JSON properties to the DTO.
             var loginResponse = JsonSerializer.Deserialize<LoginResponseDto>(
                 content,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
@@ -58,7 +70,11 @@ namespace SSO.Client.VAMS.Services
             return (loginResponse, null);
         }
 
-        /// Gets user claims from /api/auth/me
+        /// <summary>
+        /// Fetches the user's claims from the SSO API using the supplied bearer token.
+        /// </summary>
+        /// <param name="token">Bearer token obtained during login.</param>
+        /// <returns>List of <see cref="UserClaimsDto"/> on success, otherwise null.</returns>
         public async Task<List<UserClaimsDto>?> GetUserClaimsAsync(string token)
         {
             var client = _httpClientFactory.CreateClient();

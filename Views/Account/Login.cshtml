@@ -1,19 +1,24 @@
 ﻿@model SSO.Client.VAMS.Models.LoginViewModel
 
-<h2>Login</h2>
-
-<form method="post">
-    <div>
-        <label>Username:</label>
-        <input asp-for="Username" />
+@* Login page with a centered card. The page posts the credentials to AccountController.Login (POST). *@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%;">
+        <h2 class="text-center mb-4">Login</h2>
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Username" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input type="password" asp-for="Password" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
     </div>
-    <div>
-        <label>Password:</label>
-        <input type="password" asp-for="Password" />
-    </div>
-    <button type="submit">Login</button>
-</form>
+</div>
 
+@* Display server-side error messages from the login attempt. *@
 @if (ViewBag.Error != null)
 {
     <p style="color:red">@ViewBag.Error</p>

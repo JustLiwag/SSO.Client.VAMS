@@ -1,10 +1,24 @@
+using Microsoft.EntityFrameworkCore;
+using SSO.Client.VAMS.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// MVC with controllers and views (Razor Pages projects may use AddRazorPages instead).
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient();               // For calling SSO API
-builder.Services.AddSession();                  // Store token in session
+
+// HttpClient factory used by SsoAuthService to call external SSO endpoints.
+builder.Services.AddHttpClient();
+
+// Session middleware to store simple authenticated state (token, employee id).
+builder.Services.AddSession();
+
+// SSO service registration (scoped per-request).
 builder.Services.AddScoped<SSO.Client.VAMS.Services.SsoAuthService>();
+
+// Register EF Core DbContext (SQL Server). Uses DefaultConnection from appsettings.json.
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

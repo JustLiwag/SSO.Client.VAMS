@@ -1,12 +1,41 @@
-﻿<h2>Dashboard</h2>
+﻿@using SSO.Client.VAMS.Models
 
-@if (ViewBag.UserInfo != null)
+@* Dashboard view shows SSO-provided info (from session) and local personnel details fetched from the DB view. *@
+
+<h2>Dashboard</h2>
+
+@* Local database record takes precedence for display when available. *@
+@if (ViewBag.LocalUser != null)
 {
+    <h3>Local Personnel Details</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Employee Id</th>
+                <th>Surname</th>
+                <th>Given Name</th>
+                <th>Division</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@ViewBag.LocalUser.EmployeeId</td>
+                <td>@ViewBag.LocalUser.Surname</td>
+                <td>@ViewBag.LocalUser.GivenName</td>
+                <td>@ViewBag.LocalUser.DivisionName</td>
+            </tr>
+        </tbody>
+    </table>
+}
+else if (ViewBag.UserInfo != null)
+{
+    <h3>SSO-provided Info</h3>
     <p><strong>Employee No:</strong> @ViewBag.UserInfo.EmployeeNo</p>
     <p><strong>Full Name:</strong> @ViewBag.UserInfo.FullName</p>
     <p><strong>Division:</strong> @ViewBag.UserInfo.Division</p>
 }
 
+@* Display claims if present. Useful for debugging/authorization checks. *@
 @if (ViewBag.Claims != null)
 {
     <h3>Claims:</h3>
@@ -19,6 +48,6 @@
 }
 
 <form asp-controller="Account" asp-action="Logout" method="post">
-    <button type="submit">Logout</button>
+    <button type="submit" class="btn btn-primary">Logout</button>
 </form>
 
