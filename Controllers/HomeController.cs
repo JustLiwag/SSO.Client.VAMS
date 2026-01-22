@@ -1,53 +1,58 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using SSO.Client.VAMS.Models;
 
 namespace SSO.Client.VAMS.Controllers
 {
-    /// <summary>
-    /// Default home controller for basic pages like index and privacy.
-    /// </summary>
+    [Authorize] // Protects all actions unless overridden
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
 
-        /// <summary>
-        /// Constructs a new instance of <see cref="HomeController"/>.
-        /// </summary>
-        /// <param name="logger">Logger instance provided by DI.</param>
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
         }
 
-        /// <summary>
-        /// GET: /Home/Index
-        /// Returns the application's home page.
-        /// </summary>
-        /// <returns>Index view.</returns>
+        // GET: /Home/Index
         public IActionResult Index()
         {
             return View();
         }
 
-        /// <summary>
-        /// GET: /Home/Privacy
-        /// Returns the privacy page.
-        /// </summary>
-        /// <returns>Privacy view.</returns>
+        // GET: /Home/Privacy
         public IActionResult Privacy()
         {
             return View();
         }
 
-        /// <summary>
-        /// Error handler used by ASP.NET Core when an exception occurs and the pipeline forwards here.
-        /// </summary>
-        /// <returns>Error view populated with request id.</returns>
+        // GET: /Home/Logout
+        // Signs the user out of both the cookie and IdentityServer
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            // This triggers the OIDC sign-out process
+            return SignOut(
+                new AuthenticationProperties
+                {
+                    RedirectUri = Url.Action("Index", "Home") // redirect after logout
+                },
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                OpenIdConnectDefaults.AuthenticationScheme);
+        }
+
+        // GET: /Home/Error
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
         }
     }
 }
