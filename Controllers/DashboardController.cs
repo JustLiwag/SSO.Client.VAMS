@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SSO.Client.VAMS.Models;
-using SSO.Client.VAMS.Services;
 using SSO.Client.VAMS.Data;
 using System.Text.Json;
-using SSO.Client.VAMS.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SSO.Client.VAMS.Controllers
 {
@@ -12,10 +11,9 @@ namespace SSO.Client.VAMS.Controllers
     /// Dashboard controller that shows authenticated user's information.
     /// Requires an SSO login via the <see cref="RequireSsoLogin"/> filter.
     /// </summary>
-    [RequireSsoLogin]
+    [Authorize]
     public class DashboardController : Controller
     {
-        private readonly SsoAuthService _sso;
         private readonly ApplicationDbContext _db;
 
         /// <summary>
@@ -23,9 +21,8 @@ namespace SSO.Client.VAMS.Controllers
         /// </summary>
         /// <param name="sso">SSO service used to fetch claims.</param>
         /// <param name="db">EF Core database context used to query local user details view.</param>
-        public DashboardController(SsoAuthService sso, ApplicationDbContext db)
+        public DashboardController(ApplicationDbContext db)
         {
-            _sso = sso;
             _db = db;
         }
 
@@ -46,8 +43,6 @@ namespace SSO.Client.VAMS.Controllers
             var userJson = HttpContext.Session.GetString("user_info");
             var userInfo = JsonSerializer.Deserialize<LoginResponseDto>(userJson ?? "{}");
 
-            // Optionally fetch claims from SSO API for more detailed authorization data.
-            var claims = await _sso.GetUserClaimsAsync(token);
 
             // Query the local database view for personnel details using the EmployeeId stored in session.
             var employeeId = HttpContext.Session.GetString("EmployeeId");
@@ -62,7 +57,6 @@ namespace SSO.Client.VAMS.Controllers
 
             // Pass gathered information to the view using ViewBag to keep the view simple.
             ViewBag.UserInfo = userInfo;
-            ViewBag.Claims = claims;
             ViewBag.LocalUser = localUser;
 
             return View();
