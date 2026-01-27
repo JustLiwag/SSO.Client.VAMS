@@ -1,0 +1,6 @@
+﻿@model SSO.Auth.Api.Models.LogoutViewModel
+
+<form method="post" asp-action="LogoutConfirmed">
+    <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+    <button type="submit">Confirm Logout</button>
+</form>

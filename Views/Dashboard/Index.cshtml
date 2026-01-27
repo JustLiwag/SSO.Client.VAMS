@@ -1,22 +1,17 @@
-﻿@model IEnumerable<dynamic>
+﻿@model dynamic
 
-<h2>Dashboard</h2>
-<p>This is the Dashboard. Below are your claims:</p>
+<h2>This is the Dashboard</h2>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Claim Type</th>
-            <th>Claim Value</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var claim in Model)
-        {
-            <tr>
-                <td>@claim.Type</td>
-                <td>@claim.Value</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<p><strong>Employee No:</strong> @Model.EmployeeNo</p>
+<p><strong>Full Name:</strong> @Model.FullName</p>
+<p><strong>Division:</strong> @Model.Division</p>
+
+<hr />
+
+<h3>All Claims</h3>
+<ul>
+    @foreach (var claim in Model.Claims)
+    {
+        <li><strong>@claim.Type</strong> = @claim.Value</li>
+    }
+</ul>
