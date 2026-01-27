@@ -1,41 +1,54 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using SSO.Client.VAMS.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// MVC with controllers and views (Razor Pages projects may use AddRazorPages instead).
+// MVC
 builder.Services.AddControllersWithViews();
 
-// HttpClient factory used by SsoAuthService to call external SSO endpoints.
-builder.Services.AddHttpClient();
-
-// Session middleware to store simple authenticated state (token, employee id).
-builder.Services.AddSession();
-
-// SSO service registration (scoped per-request).
-builder.Services.AddScoped<SSO.Client.VAMS.Services.SsoAuthService>();
-
-// Register EF Core DbContext (SQL Server). Uses DefaultConnection from appsettings.json.
+// DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// ===== AUTHENTICATION =====
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+{
+    options.Authority = builder.Configuration["SSO:Authority"];
+    options.ClientId = builder.Configuration["SSO:ClientId"];
+    options.ResponseType = "code";
+    options.UsePkce = true;
+
+    options.SaveTokens = true;
+    options.GetClaimsFromUserInfoEndpoint = true;
+
+    options.Scope.Add("openid");
+    options.Scope.Add("profile");
+    options.Scope.Add("vams_api"); // if you want API access
+
+    options.ClientSecret = ""; // Not needed for PKCE-only
+
+    // Callback path
+    options.CallbackPath = "/signin-oidc";
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-}
 app.UseStaticFiles();
-
 app.UseRouting();
-app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 app.Run();

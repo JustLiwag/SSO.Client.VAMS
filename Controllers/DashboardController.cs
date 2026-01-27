@@ -4,7 +4,7 @@ using SSO.Client.VAMS.Models;
 using SSO.Client.VAMS.Services;
 using SSO.Client.VAMS.Data;
 using System.Text.Json;
-using SSO.Client.VAMS.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SSO.Client.VAMS.Controllers
 {
@@ -12,7 +12,7 @@ namespace SSO.Client.VAMS.Controllers
     /// Dashboard controller that shows authenticated user's information.
     /// Requires an SSO login via the <see cref="RequireSsoLogin"/> filter.
     /// </summary>
-    [RequireSsoLogin]
+    [Authorize]
     public class DashboardController : Controller
     {
         private readonly SsoAuthService _sso;
