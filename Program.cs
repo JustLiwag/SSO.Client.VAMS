@@ -31,6 +31,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapDefaultControllerRoute();
+app.MapControllerRoute(
+  name: "default",
+  pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 app.Run();
