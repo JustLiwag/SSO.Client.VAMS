@@ -1,17 +1,22 @@
-﻿@model List<SSO.Client.VAMS.Models.UserClaimsDto>
+﻿@model IEnumerable<dynamic>
 
-<h2>User Claims</h2>
+<h2>Dashboard</h2>
+<p>This is the Dashboard. Below are your claims:</p>
 
-<table>
-    <tr>
-        <th>Type</th>
-        <th>Value</th>
-    </tr>
-    @foreach (var claim in Model)
-    {
+<table class="table table-bordered">
+    <thead>
         <tr>
-            <td>@claim.Type</td>
-            <td>@claim.Value</td>
+            <th>Claim Type</th>
+            <th>Claim Value</th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var claim in Model)
+        {
+            <tr>
+                <td>@claim.Type</td>
+                <td>@claim.Value</td>
+            </tr>
+        }
+    </tbody>
 </table>
