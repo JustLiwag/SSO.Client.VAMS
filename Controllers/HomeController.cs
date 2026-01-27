@@ -1,14 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace SSO.Auth.Api.Controllers
+public class HomeController : Controller
 {
-    public class HomeController : Controller
-    {
-        [HttpGet("/home/error")]
-        public IActionResult Error(string errorId)
-        {
-            // Temporary error display for debugging
-            return Content($"IdentityServer Error. ErrorId: {errorId}");
-        }
-    }
+    public IActionResult Index() => View();
+
+    public IActionResult Error() => View();
 }

@@ -1,43 +1,40 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.EntityFrameworkCore;
-using SSO.Client.VAMS.Data;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC
 builder.Services.AddControllersWithViews();
 
-// DB
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// ===== AUTHENTICATION =====
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
 })
-.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-.AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+.AddCookie()
+.AddOpenIdConnect(options =>
 {
-    options.Authority = builder.Configuration["SSO:Authority"];
-    options.ClientId = builder.Configuration["SSO:ClientId"];
+    options.Authority = "https://localhost:5001"; // SSO.Auth.Api
+    options.ClientId = "vams_client";
+
     options.ResponseType = "code";
     options.UsePkce = true;
 
     options.SaveTokens = true;
     options.GetClaimsFromUserInfoEndpoint = true;
 
+    options.Scope.Clear();
     options.Scope.Add("openid");
     options.Scope.Add("profile");
-    options.Scope.Add("vams_api"); // if you want API access
+    options.Scope.Add("vams_api");
 
-    options.ClientSecret = ""; // Not needed for PKCE-only
-
-    // Callback path
-    options.CallbackPath = "/signin-oidc";
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        NameClaimType = "name"
+    };
 });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -47,8 +44,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+app.MapDefaultControllerRoute();
 
 app.Run();
