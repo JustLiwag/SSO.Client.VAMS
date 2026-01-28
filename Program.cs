@@ -7,10 +7,10 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = "sso_cookie";
+    options.DefaultScheme = "Cookie";
     options.DefaultChallengeScheme = "oidc";
 })
-.AddCookie("sso_cookie", options =>
+.AddCookie("Cookie", options =>
 {
     options.LoginPath = "/Account/Login";
 })
