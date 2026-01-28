@@ -13,6 +13,14 @@ public class AccountController : Controller
         _interaction = interaction;
     }
 
+    public IActionResult Login()
+    {
+        return Challenge(new AuthenticationProperties
+        {
+            RedirectUri = "/Dashboard/Index"
+        }, "oidc");
+    }
+
     [HttpGet]
     public async Task<IActionResult> Logout(string logoutId)
     {

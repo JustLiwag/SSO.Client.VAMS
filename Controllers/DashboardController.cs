@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿namespace SSO.Client.VAMS.Controllers;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace SSO.Client.VAMS.Controllers;
-    [Authorize]
-    public class DashboardController : Controller
+[Authorize]
+public class DashboardController : Controller
     {
         public IActionResult Index()
         {
