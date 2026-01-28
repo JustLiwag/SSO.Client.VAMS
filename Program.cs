@@ -7,22 +7,33 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+    options.DefaultScheme = "sso_cookie";
+    options.DefaultChallengeScheme = "oidc";
 })
-.AddCookie()
-.AddOpenIdConnect(options =>
+.AddCookie("sso_cookie", options =>
 {
-    options.Authority = "https://localhost:5001";
+    options.LoginPath = "/Account/Login";
+})
+.AddOpenIdConnect("oidc", options =>
+{
+    options.Authority = "https://localhost:5001"; // SSO.Auth.Api
     options.ClientId = "vams_client";
+    options.ClientSecret = "vams_secret";
+
     options.ResponseType = "code";
+    options.UsePkce = true;
 
     options.SaveTokens = true;
     options.GetClaimsFromUserInfoEndpoint = true;
 
+    options.Scope.Clear();
     options.Scope.Add("openid");
     options.Scope.Add("profile");
+    options.Scope.Add("vams_api");
+
+    options.CallbackPath = "/signin-oidc";
 });
+
 
 var app = builder.Build();
 
