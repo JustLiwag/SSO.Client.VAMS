@@ -49,6 +49,7 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("vams_api");
 
     options.CallbackPath = "/signin-oidc";
+    options.SignedOutCallbackPath = "/signout-callback-oidc";
 
     options.MapInboundClaims = false;
 
