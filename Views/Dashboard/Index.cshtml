@@ -3,11 +3,11 @@
         <h2 class="fw-bold m-0 text-primary">User Dashboard</h2>
         @if (User.Identity.IsAuthenticated)
         {
-            <form asp-controller="Account" asp-action="Logout" method="post">
-                <button type="submit" class="btn btn-outline-danger btn-sm px-4 rounded-pill">
-                    <i class="bi bi-box-arrow-right me-2"></i>Logout
-                </button>
-            </form>
+            <a asp-controller="Account"
+               asp-action="Logout"
+               class="btn btn-outline-danger btn-sm px-4 rounded-pill">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+            </a>
         }
     </div>
 
