@@ -54,6 +54,7 @@ builder.Services.AddAuthentication(options =>
     options.MapInboundClaims = false;
 });
 
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
