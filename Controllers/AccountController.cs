@@ -1,19 +1,34 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
-public class AccountController : Controller
+namespace SSO.Client.VAMS.Controllers
 {
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Logout()
+    public class AccountController : Controller
     {
-        return SignOut(
-            new AuthenticationProperties
+        // =========================
+        // LOGIN
+        // =========================
+        public IActionResult Login(string returnUrl = "/Dashboard")
+        {
+            return Challenge(new AuthenticationProperties
             {
-                RedirectUri = "/"
-            },
-            "vams_cookie",
-            "oidc"
-        );
+                RedirectUri = returnUrl
+            }, "oidc");
+        }
+
+        // =========================
+        // LOGOUT (CRITICAL)
+        // =========================
+        public IActionResult Logout()
+        {
+            return SignOut(
+                new AuthenticationProperties
+                {
+                    RedirectUri = "/"
+                },
+                "vams_cookie",
+                "oidc"
+            );
+        }
     }
 }

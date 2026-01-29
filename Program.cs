@@ -52,50 +52,8 @@ builder.Services.AddAuthentication(options =>
     options.SignedOutCallbackPath = "/signout-callback-oidc";
 
     options.MapInboundClaims = false;
-
-    options.Events = new OpenIdConnectEvents
-    {
-        OnTokenValidated = context =>
-        {
-            return Task.CompletedTask;
-        },
-        OnAuthenticationFailed = context =>
-        {
-            context.Response.Redirect("/Home/Error?msg=" + context.Exception.Message);
-            context.HandleResponse();
-            return Task.CompletedTask;
-        }
-    };
-    options.Events = new OpenIdConnectEvents
-    {
-        OnMessageReceived = context =>
-        {
-            Console.WriteLine("OIDC: Message received");
-            return Task.CompletedTask;
-        },
-        OnAuthorizationCodeReceived = context =>
-        {
-            Console.WriteLine("OIDC: Authorization code received");
-            return Task.CompletedTask;
-        },
-        OnTokenResponseReceived = context =>
-        {
-            Console.WriteLine("OIDC: Token response received");
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
-        {
-            Console.WriteLine("OIDC: Token validated");
-            return Task.CompletedTask;
-        },
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine("OIDC ERROR: " + context.Exception);
-            return Task.CompletedTask;
-        }
-    };
-
 });
+
 
 var app = builder.Build();
 
